@@ -1,9 +1,13 @@
 function settings = ASTPharma_init(data)
 
+    % Durations
+    settings.durations.sound_delay = .8;
+    settings.durations.stim = .2;
+
     % Trials
     if data.training == 0
-        settings.general.trials = 3; % clusters
-        settings.general.blocks = 6;
+        settings.general.trials = 5; % clusters
+        settings.general.blocks = 8;
     else
         settings.general.trials = 1;
         settings.general.blocks = 1;
@@ -15,7 +19,7 @@ function settings = ASTPharma_init(data)
 
     % Folders
     settings.files.infolder = fileparts(which('ASTPharma.m'));
-    settings.files.outfolder = fullfile(infolder, 'out');
+    settings.files.outfolder = fullfile(settings.files.infolder, 'out');
     clocktime = clock; hrs = num2str(clocktime(4)); mins = num2str(clocktime(5));
     settings.files.outfile = ['Subject_' num2str(data.nr) '_' date '_' hrs '.' mins 'h.mat'];
     settings.files.eyelink = ['AST_S' num2str(data.nr) '.edf'];
@@ -31,9 +35,26 @@ function settings = ASTPharma_init(data)
         settings.sound.odd_freq = 600;
     end
     asamples = 0:1/settings.sound.srate:settings.sound.duration;
+    load(fullfile(settings.files.infolder, 'backend', 'novelsounds.mat'));
     settings.stan_wave = sin(2* pi * settings.sound.stan_freq * asamples);
     settings.odd_wave = sin(2 * pi * settings.sound.odd_freq * asamples);
-    load(fullfile(settings.files.infolder, 'backend', 'novelsounds.mat'));
+    settings.novel_wave = novelsounds();
+    settings.sound.audiohandle = PsychPortAudio('Open', [], [], 0, settings.sound.srate, 1);
+    InitializePsychSound(1); % prioritize audio
+    
+    % EEG
+    if data.eeg == 1
+        EEGtrigger(0); 
+        settings.eeg = 1; 
+    else
+        settings.eeg = 0; 
+    end
+    
+    % Screen
+    settings.screen.Number = max(Screen('Screens'));
+    [settings.screen.outwindow, settings.screen.outwindowdims] = Screen('Openwindow',settings.screen.Number, 0, [200 200]); % make screen, black bg
+    settings.screen.cm_d = 77; % distance from screen
+    settings.screen.cm_h = 53.5; % horizontal
     
     % Eyelink 
     settings.eyetracker = EyelinkInitDefaults(settings.screen.outwindow);
@@ -51,19 +72,5 @@ function settings = ASTPharma_init(data)
     settings.eyetracker.srate = 1000;
     EyelinkDoTrackerSetup(settings.eyetracker);
     EyelinkDoDriftCorrection(settings.eyetracker);
-    
-    % EEG
-    if data.eeg == 1
-        EEGtrigger(0); 
-        settings.eeg = 1; 
-    else
-        settings.eeg = 0; 
-    end
-    
-    % Screen
-    settings.screen.Number = max(Screen('Screens'));
-    [settings.screen.outwindow, settings.screen.outwindowdims] = Screen('Openwindow',settings.screen.Number, 0); % make screen, black bg
-    settings.screen.cm_d = 77; % distance from screen
-    settings.screen.cm_h = 53.5; % horizontal
 
 end

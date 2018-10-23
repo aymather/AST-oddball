@@ -27,7 +27,17 @@ data = ASTPharma_data;
 settings = ASTPharma_init(data);
 settings = eye_calibrate(settings,1);
 
+if data.experiment == 1
+    
+    % Create trialseq
+    trialseq = ASTPharma_sequence(settings,id,data);
 
+    % Go through trials
+    trialseq = ASTPharma_backend(settings,trialseq,id);
 
+end
+
+Screen('CloseAll');
+PsychPortAudio('Close');
 
 

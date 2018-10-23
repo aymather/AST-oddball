@@ -2,6 +2,7 @@ function data = ASTPharma_data
 
     disp('Welcome to our Experiment!');
     data.nr = input('Subject Number?: ');
+    data.experiment = input('Run full experiment?: ');
     data.eeg = input('EEG? (0/1): ');
     data.training = input('Training? (0/1): ');
     if data.training == 0
