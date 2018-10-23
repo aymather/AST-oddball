@@ -1,5 +1,12 @@
 function ASTPharma_backend(settings,trialseq,id)
     
+    % Begin eyelink recording
+    eyedata = zeros(settings.general.blocks*settings.general.trials,settings.duration.deadline*settings.eyetracker.srate+1);
+    Eyelink('StartRecording');
+    WaitSecs(.1);
+    Eyelink('message', 'Block_1');
+
+    % Go through trials
     for it = 1:size(trialseq,1)
         
         if it == 1
@@ -21,7 +28,7 @@ function ASTPharma_backend(settings,trialseq,id)
         Screen('Flip', settings.screen.outwindow);
         
         % Play audio for 200 ms
-        stimstart = PsychPortAudio('Start', settings.sound.audiohandle, 1, 0, 1);
+        stimstart = PsychPortAudio('Start', settings.sound.audiohandle, 1, 0, 1); write_parallel(portaddress,mask) % start audio and send triggers
         
         while GetSecs - stimstart <= settings.durations.stim
             WaitSecs(0.001);
